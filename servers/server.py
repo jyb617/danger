@@ -486,11 +486,27 @@ def get_video_detail(video_id):
 @app.get('/api/videoinference/cover/<string:video_id>')
 def get_video_cover(video_id):
     """获取视频封面"""
+    print(f"\n=== 请求封面: {video_id} ===")
+
     cover_path = f'servers/covers/result.{video_id}.jpg'
     abs_cover_path = os.path.abspath(cover_path)
 
-    if not os.path.exists(abs_cover_path):
+    print(f"  相对路径: {cover_path}")
+    print(f"  绝对路径: {abs_cover_path}")
+    print(f"  文件存在: {os.path.exists(abs_cover_path)}")
+
+    if os.path.exists(abs_cover_path):
+        file_size = os.path.getsize(abs_cover_path)
+        print(f"✓ 找到封面: {abs_cover_path} ({file_size / 1024:.2f} KB)")
+    else:
         print(f"❌ 封面不存在: {abs_cover_path}")
+        # 列出covers目录下的文件
+        covers_dir = os.path.dirname(abs_cover_path)
+        if os.path.exists(covers_dir):
+            existing_files = os.listdir(covers_dir)
+            print(f"  covers目录下的文件: {existing_files}")
+        else:
+            print(f"  covers目录不存在: {covers_dir}")
         return abort(404, description="封面图片不存在")
 
     try:
