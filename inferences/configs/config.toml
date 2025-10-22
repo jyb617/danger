@@ -1,0 +1,57 @@
+# ==================== 模型配置 ====================
+# 检测模型路径（训练好的PyTorch模型）
+detection-model-path = "D:\\Python\\Surveillance-main-v1\\checkpoints\\best-ckpt4.pt"
+
+# 特征适配器路径（预处理时生成的adapter权重，确保推理特征与训练一致）
+# 如果不指定，将使用随机初始化的adapter（不推荐）
+feature-adapter-path = "D:\\Python\\dataprocess\\processed_data\\feature_adapter.pth"
+
+# 设备配置
+device = "cpu"
+
+# ==================== 模型参数（需与训练时一致）====================
+# 注意力窗口大小
+attention-window = 9
+
+# Alpha参数：控制全局和局部注意力的权重
+alpha = 0.2
+
+# ==================== 视频处理参数 ====================
+# 视频段长度（每次处理的帧数）
+segment-length = 16
+
+# 视频段宽度和高度（resize后的尺寸）
+segment-width = 640
+segment-height = 480
+
+# ==================== 图像裁剪参数 ====================
+# 裁剪区域坐标（针对resize后的图像）
+crop-x1 = 0
+crop-x2 = 640
+crop-y1 = 0
+crop-y2 = 480
+
+# ==================== 平滑参数 ====================
+# 分数平滑窗口大小
+smoothing-window = 3
+
+# ==================== 异常检测参数 ====================
+# 异常判定阈值
+anomaly-threshold = 0.5
+
+# 异常提示文字
+anomaly-prompt = "DANGER!"
+
+# 异常边框粗细
+anomaly-border = 8
+
+history-length = 10
+
+# 捕获帧间隔（秒），控制帧捕获频率
+capture-interval = 0.033  # 约30fps
+
+# 准备帧间隔（秒），控制帧预处理频率
+prepare-interval = 0.033
+
+# 预测间隔（秒），控制异常检测频率
+predict-interval = 0.5  # 每0.5秒进行一次检测
