@@ -483,6 +483,25 @@ def get_video_detail(video_id):
     })
 
 
+@app.get('/api/videoinference/cover/<string:video_id>')
+def get_video_cover(video_id):
+    """获取视频封面"""
+    cover_path = f'servers/covers/result.{video_id}.jpg'
+    abs_cover_path = os.path.abspath(cover_path)
+
+    if not os.path.exists(abs_cover_path):
+        print(f"❌ 封面不存在: {abs_cover_path}")
+        return abort(404, description="封面图片不存在")
+
+    try:
+        return send_file(abs_cover_path, mimetype='image/jpeg')
+    except Exception as e:
+        print(f"❌ 发送封面失败: {e}")
+        import traceback
+        traceback.print_exc()
+        return abort(500, description="封面发送失败")
+
+
 @app.get('/api/videoinference/video/<string:video_id>')
 def get_result_video(video_id):
     """获取结果视频"""
@@ -532,6 +551,7 @@ def delete_videos():
 
     for video_id in video_ids:
         remove_queue.put(f'servers/videos/result.{video_id}.mp4')
+        remove_queue.put(f'servers/videos/result.{video_id}.avi')
         remove_queue.put(f'servers/covers/result.{video_id}.jpg')
 
     return flask.jsonify({'deletedCount': delete_result.deleted_count})
