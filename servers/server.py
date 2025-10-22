@@ -199,20 +199,11 @@ def save_detection_result(source, output, scores):
     total_frames = int(reader.get(cv2.CAP_PROP_FRAME_COUNT))
     print(f"源视频信息: FPS={fps}, 总帧数={total_frames}")
 
-    # ✅ 尝试多种编码器（优先使用浏览器兼容的H.264编码）
+    # ✅ 尝试多种编码器
     codecs_to_try = [
-        # H.264编码器（浏览器兼容性最好）
-        ('avc1', output, 'video/mp4'),
-        ('H264', output, 'video/mp4'),
-        ('X264', output, 'video/mp4'),
-        ('h264', output, 'video/mp4'),
-        ('x264', output, 'video/mp4'),
-        # MPEG-4编码器（备选）
         ('mp4v', output, 'video/mp4'),
-        # MJPEG编码器（浏览器支持较好）
-        ('MJPG', output.replace('.mp4', '.avi'), 'video/x-msvideo'),
-        # XVID编码器（最后备选）
         ('XVID', output.replace('.mp4', '.avi'), 'video/x-msvideo'),
+        ('MJPG', output.replace('.mp4', '.avi'), 'video/x-msvideo'),
     ]
 
     writer = None
@@ -220,22 +211,17 @@ def save_detection_result(source, output, scores):
 
     for codec, path, mime in codecs_to_try:
         print(f"尝试编码器: {codec} -> {path}")
-        try:
-            fourcc = cv2.VideoWriter_fourcc(*codec)
-            test_writer = cv2.VideoWriter(path, fourcc, fps, (video_width, video_height))
+        fourcc = cv2.VideoWriter_fourcc(*codec)
+        test_writer = cv2.VideoWriter(path, fourcc, fps, (video_width, video_height))
 
-            if test_writer.isOpened():
-                writer = test_writer
-                final_output = path
-                print(f"✓ 成功创建写入器: {codec}")
-                print(f"  输出文件: {final_output}")
-                print(f"  编码格式: {codec} ({'浏览器兼容' if codec in ['avc1', 'H264', 'X264', 'h264', 'x264', 'MJPG'] else '可能不兼容浏览器'})")
-                break
-            else:
-                test_writer.release()
-                print(f"✗ {codec} 编码器失败 - VideoWriter未能打开")
-        except Exception as e:
-            print(f"✗ {codec} 编码器异常: {e}")
+        if test_writer.isOpened():
+            writer = test_writer
+            final_output = path
+            print(f"✓ 成功创建写入器: {codec}")
+            break
+        else:
+            test_writer.release()
+            print(f"✗ {codec} 编码器失败")
 
     if writer is None:
         reader.release()
@@ -305,14 +291,9 @@ def save_detection_result(source, output, scores):
         raise Exception("生成的视频文件无法打开")
 
     verify_frame_count = int(verify_cap.get(cv2.CAP_PROP_FRAME_COUNT))
-    verify_fps = verify_cap.get(cv2.CAP_PROP_FPS)
-    verify_fourcc = int(verify_cap.get(cv2.CAP_PROP_FOURCC))
     verify_cap.release()
 
-    print(f"✓ 验证成功:")
-    print(f"  帧数: {verify_frame_count}")
-    print(f"  FPS: {verify_fps}")
-    print(f"  编码: {verify_fourcc}")
+    print(f"✓ 验证: 视频包含 {verify_frame_count} 帧")
 
     if verify_frame_count == 0:
         raise Exception("生成的视频文件帧数为0")
@@ -483,47 +464,10 @@ def get_video_detail(video_id):
     })
 
 
-@app.get('/api/videoinference/cover/<string:video_id>')
-def get_video_cover(video_id):
-    """获取视频封面"""
-    print(f"\n=== 请求封面: {video_id} ===")
-
-    cover_path = f'servers/covers/result.{video_id}.jpg'
-    abs_cover_path = os.path.abspath(cover_path)
-
-    print(f"  相对路径: {cover_path}")
-    print(f"  绝对路径: {abs_cover_path}")
-    print(f"  文件存在: {os.path.exists(abs_cover_path)}")
-
-    if os.path.exists(abs_cover_path):
-        file_size = os.path.getsize(abs_cover_path)
-        print(f"✓ 找到封面: {abs_cover_path} ({file_size / 1024:.2f} KB)")
-    else:
-        print(f"❌ 封面不存在: {abs_cover_path}")
-        # 列出covers目录下的文件
-        covers_dir = os.path.dirname(abs_cover_path)
-        if os.path.exists(covers_dir):
-            existing_files = os.listdir(covers_dir)
-            print(f"  covers目录下的文件: {existing_files}")
-        else:
-            print(f"  covers目录不存在: {covers_dir}")
-        return abort(404, description="封面图片不存在")
-
-    try:
-        return send_file(abs_cover_path, mimetype='image/jpeg')
-    except Exception as e:
-        print(f"❌ 发送封面失败: {e}")
-        import traceback
-        traceback.print_exc()
-        return abort(500, description="封面发送失败")
-
-
 @app.get('/api/videoinference/video/<string:video_id>')
 def get_result_video(video_id):
     """获取结果视频"""
     print(f"\n=== 请求视频: {video_id} ===")
-    print(f"  请求来源: {flask.request.remote_addr}")
-    print(f"  User-Agent: {flask.request.headers.get('User-Agent', 'Unknown')}")
 
     possible_paths = [
         f'servers/videos/result.{video_id}.mp4',
@@ -535,10 +479,7 @@ def get_result_video(video_id):
 
         if os.path.exists(abs_filepath):
             file_size = os.path.getsize(abs_filepath)
-            file_ext = os.path.splitext(filepath)[1]
-            print(f"✓ 找到视频: {abs_filepath}")
-            print(f"  文件大小: {file_size / (1024 * 1024):.2f} MB")
-            print(f"  文件格式: {file_ext}")
+            print(f"✓ 找到视频: {abs_filepath} ({file_size / (1024 * 1024):.2f} MB)")
 
             try:
                 return send_video_file(filepath)
@@ -549,7 +490,6 @@ def get_result_video(video_id):
                 continue
 
     print(f"❌ 未找到视频: {video_id}")
-    print(f"  已检查路径: {possible_paths}")
     return abort(404, description="视频文件不存在")
 
 
@@ -567,7 +507,6 @@ def delete_videos():
 
     for video_id in video_ids:
         remove_queue.put(f'servers/videos/result.{video_id}.mp4')
-        remove_queue.put(f'servers/videos/result.{video_id}.avi')
         remove_queue.put(f'servers/covers/result.{video_id}.jpg')
 
     return flask.jsonify({'deletedCount': delete_result.deleted_count})
