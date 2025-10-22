@@ -1,0 +1,34 @@
+:root {
+    --color-primary: #409eff;
+    --color-primary-dark-3: #3375b9;
+    --color-primary-dark-5: #2a598a;
+    --color-primary-dark-7: #213d5b;
+    --color-primary-dark-8: #1d3043;
+    --color-primary-dark-9: #18222c;
+    --color-primary-light-2: #66b1ff;
+    --color-text-dark-1: #ffffff;
+    --color-text-dark-2: #e5eaf3;
+    --color-text-light: #303133;
+    --color-background-base: #ffffff;
+    --color-background-light-1: #fafcff;
+    --color-background-light-2: #fafafa;
+    --color-background-light-3: #f5f7fa;
+    --color-background-light-4: #f0f2f5;
+    --color-background-light-5: #ebedf0;
+    --color-background-light-6: #e6e8eb;
+    --color-foreground-base: #000000;
+    --color-foreground-dark-1: #0a0a0a;
+    --color-foreground-dark-2: #141414;
+    --color-foreground-dark-3: #1d1e1f;
+    --color-foreground-dark-4: #191919;
+    --color-foreground-dark-5: #1d1d1d;
+    --color-foreground-dark-6: #262727;
+    --color-foreground-dark-7: #303030;
+    --color-foreground-dark-8: #39393a;
+    --color-foreground-dark-9: #424243;
+    --color-dark-transparent-00: #00000000;
+    --color-dark-transparent-20: #00000020;
+    --color-dark-transparent-30: #00000030;
+    --color-dark-transparent-40: #00000040;
+    --color-dark-transparent-50: #00000050;
+}
